@@ -16,7 +16,7 @@ def index(name):
 
 
 
-    return template('<b>Hello {{name}}</b>!', name=name)
+    return template('Thank you!')
 
 
 def _authenticate(token):

@@ -4,6 +4,7 @@ import smtplib
 from jinja2 import Template
 import settings
 import sqlite3
+import time
 
 # Load external data
 SENDER_EMAIL = settings.SENDER_EMAIL
@@ -37,7 +38,7 @@ Subject: {subject}
     # Msg body from template
     t = Template(open('templates/email.html').read())
     message_body = t.render(mailto=recipient, 
-                    submitserver=SUBMIT_POST_SERVER,
+                    submit_url=SUBMIT_POST_SERVER,
                     token=token)
     
     message = message_header + message_body
@@ -46,5 +47,6 @@ Subject: {subject}
         	                   settings.SMTP_SERVER_PORT)
         smtpObj.sendmail(SENDER_EMAIL, receivers, message)         
         print "Successfully sent email"
-    except SMTPException:
+        time.sleep(1)
+    except smtplib.SMTPException:
         print "Error: unable to send email"
