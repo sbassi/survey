@@ -1,6 +1,8 @@
 
 # Fill with config data here:
 
+SUBJECT = ''
+SURVEY_DB_FILE = ''
 SENDER_NAME = ''
 SENDER_EMAIL = ''
 SMTP_SERVER_NAME = ''
