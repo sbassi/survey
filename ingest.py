@@ -1,13 +1,11 @@
-
-# create/update SQLite out of CSV
-
 import csv
 import sqlite3
 import os
 import sys
 import uuid
+import settings
 
-SURVEY_DB_FILE = 'survey.db'
+SURVEY_DB_FILE = settings.SURVEY_DB_FILE
 
 try:
     csvfile = sys.argv[1]
