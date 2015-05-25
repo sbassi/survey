@@ -1,10 +1,12 @@
-from bottle import post, run, template, request
+from bottle import post, run, template, request, get
 import sqlite3
 import settings
 
 SURVEY_DB_FILE = settings.SURVEY_DB_FILE
 
-
+@get('/')
+def home():
+    return 'Server for internal survey'
 
 @post('/surveypost/<token>')
 def index(token):
@@ -44,8 +46,5 @@ def index(token):
 
 
 
-
-
-
-
-run(host='localhost', port=8080)
+if __name__ == '__main__':
+    run(host='localhost', port=8080)
