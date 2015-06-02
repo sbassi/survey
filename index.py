@@ -1,4 +1,4 @@
-from bottle import post, run, template, request, get
+from bottle import post, run, template, request, get, static_file
 import sqlite3
 import settings
 
