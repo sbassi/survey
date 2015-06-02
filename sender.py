@@ -12,6 +12,7 @@ SENDER_NAME = settings.SENDER_NAME
 SURVEY_DB_FILE = settings.SURVEY_DB_FILE
 SUBJECT = settings.SUBJECT
 SUBMIT_POST_SERVER = settings.SUBMIT_POST_SERVER
+IMGSERVER = setting.imgserver
 
 # get list of receivers
 conn = sqlite3.connect(SURVEY_DB_FILE)
@@ -34,7 +35,8 @@ Subject: {subject}
 """.format(sender_name = SENDER_NAME,
     sender_email = SENDER_EMAIL,
     recipient = recipient,
-    subject = SUBJECT)
+    subject = SUBJECT,
+    imgserver = IMGSERVER)
     # Msg body from template
     t = Template(open('templates/email.html').read())
     message_body = t.render(mailto=recipient, 

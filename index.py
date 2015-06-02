@@ -4,6 +4,11 @@ import settings
 
 SURVEY_DB_FILE = settings.SURVEY_DB_FILE
 
+
+@get('/survey2.png')
+def images():
+    return static_file('survey2.png', root='')
+
 @get('/')
 def home():
     return 'Server for internal survey'
