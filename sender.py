@@ -5,6 +5,8 @@ from jinja2 import Template
 import settings
 import sqlite3
 import time
+import codecs
+from email.mime.text import MIMEText
 
 # Load external data
 SENDER_EMAIL = settings.SENDER_EMAIL
@@ -12,7 +14,7 @@ SENDER_NAME = settings.SENDER_NAME
 SURVEY_DB_FILE = settings.SURVEY_DB_FILE
 SUBJECT = settings.SUBJECT
 SUBMIT_POST_SERVER = settings.SUBMIT_POST_SERVER
-IMGSERVER = setting.imgserver
+IMGSERVER = settings.IMGSERVER
 
 # get list of receivers
 conn = sqlite3.connect(SURVEY_DB_FILE)
@@ -25,29 +27,22 @@ for record in data:
     recipient = record[0]
     token = record[1]
     receivers = [recipient]
-    message_header = """From: {sender_name} <{sender_email}>
-To: <{recipient}>
-MIME-Version: 1.0
-Content-type: text/html
-Subject: {subject}
-
-
-""".format(sender_name = SENDER_NAME,
-    sender_email = SENDER_EMAIL,
-    recipient = recipient,
-    subject = SUBJECT,
-    imgserver = IMGSERVER)
     # Msg body from template
-    t = Template(open('templates/email.html').read())
+    t = Template(codecs.open('templates/email.html', 'r', 'utf-8').read())
     message_body = t.render(mailto=recipient, 
                     submit_url=SUBMIT_POST_SERVER,
-                    token=token)
+                    token=token, imgserver = IMGSERVER)
     
-    message = message_header + message_body
+    message = message_body
+    msg = MIMEText(message, 'html', _charset='utf-8')
+    msg['Subject'] = SUBJECT
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = recipient
     try:
+
         smtpObj = smtplib.SMTP(settings.SMTP_SERVER_NAME, 
         	                   settings.SMTP_SERVER_PORT)
-        smtpObj.sendmail(SENDER_EMAIL, receivers, message)         
+        smtpObj.sendmail(SENDER_EMAIL, receivers, msg.as_string())         
         print "Successfully sent email"
         time.sleep(1)
     except smtplib.SMTPException:
