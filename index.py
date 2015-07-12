@@ -1,9 +1,13 @@
-from bottle import post, run, template, request, get, static_file
+from bottle import (post, run, template, request, 
+	                get, static_file, template)
 import sqlite3
 import settings
+import codecs
+
+#from jinja2 import Template
 
 SURVEY_DB_FILE = settings.SURVEY_DB_FILE
-
+BASEDIR = settings.BASEDIR
 
 @get('/survey2.png')
 def images():
@@ -11,12 +15,15 @@ def images():
 
 @get('/')
 def home():
-    return 'Server for internal survey'
+    return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),        
+    	            msg='Server for internal survey', state='default')
+
 
 @post('/surveypost/<token>')
 def index(token):
 
     conn = sqlite3.connect(SURVEY_DB_FILE)
+    conn.text_factory = str
     c = conn.cursor()
     # check that token exists
 
@@ -39,15 +46,16 @@ def index(token):
         conn.close()
     elif _submited(token):
         conn.close()
-        return 'Survey already submited'
+        return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),        
+    	            msg='Survey already submitted', state='danger')
 
     else:
         raise error
 
 
 
-    #return template('Thank you!')
-    return 'Thank you!'
+    return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),        
+    	            msg='Thank you!', state='success')
 
 
 
