@@ -32,8 +32,7 @@ data = users.scan()
 for record in data:
     recipient = record['email']
     token = record['token']
-    print recipient, token
-    '''
+    #print recipient, token
     receivers = [recipient]
     # Msg body from template
     t = Template(codecs.open('templates/email.html', 'r', 'utf-8').read())
@@ -55,4 +54,3 @@ for record in data:
         time.sleep(1)
     except smtplib.SMTPException:
         print "Error: unable to send email"
-    '''

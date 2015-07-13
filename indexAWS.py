@@ -3,6 +3,8 @@ from bottle import (post, run, template, request,
 #import sqlite3
 import settings
 import codecs
+import boto.dynamodb2
+from boto.dynamodb2.table import Table
 
 #from jinja2 import Template
 
