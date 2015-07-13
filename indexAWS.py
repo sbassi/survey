@@ -5,6 +5,7 @@ import settings
 import codecs
 import boto.dynamodb2
 from boto.dynamodb2.table import Table
+from boto.dynamodb2.exceptions import ItemNotFound
 
 #from jinja2 import Template
 
@@ -36,13 +37,19 @@ def index(token):
 
     def _authenticate(token):
         users = Table('survey2_users', connection=conn)
-        return users.get_item(token=token)
+        try:
+            return users.get_item(token=token)
+        except ItemNotFound:
+            return False
         #c.execute("SELECT * FROM users WHERE token = ?", (token,))
         #return c.fetchone()
 
     def _submited(token):
         results = Table('survey2_results', connection=conn)
-        return results.get_item(token=token)
+        try:
+            return results.get_item(token=token)
+        except ItemNotFound:
+            return False
         #c.execute("SELECT * FROM result WHERE token = ?", (token,))
         #return c.fetchone()
 
