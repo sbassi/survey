@@ -74,7 +74,8 @@ def index(token):
     	            msg='Survey already submitted', state='danger')
 
     else:
-        raise error
+        return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),        
+                    msg='Unkown user', state='danger')
 
 
 
