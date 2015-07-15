@@ -51,6 +51,6 @@ for record in data:
         	                   settings.SMTP_SERVER_PORT)
         smtpObj.sendmail(SENDER_EMAIL, receivers, msg.as_string())         
         print "Successfully sent email"
-        time.sleep(1)
+        time.sleep(.4)
     except smtplib.SMTPException:
         print "Error: unable to send email"
