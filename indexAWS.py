@@ -14,7 +14,7 @@ BASEDIR = settings.BASEDIR
 AWS_ACCESS_KEY_ID = settings.AWS_KEY_ID
 AWS_SECRET_ACCESS_KEY = settings.AWS_SECRET
 TOKENS_FILE = settings.TOKENS_FILE
-
+TABLE_NAME = settings.TABLE_NAME
 
 @get('/')
 def home():
@@ -26,7 +26,7 @@ def home():
 def index(token):
 
     conn = boto.dynamodb2.connect_to_region(
-        'us-west-1',
+        'us-east-1',
         aws_access_key_id=AWS_ACCESS_KEY_ID,
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY
     )
@@ -39,7 +39,7 @@ def index(token):
            return False
 
     def _submited(token):
-        results = Table('survey2_results', connection=conn)
+        results = Table(TABLE_NAME, connection=conn)
         try:
             return results.get_item(token=token)
         except ItemNotFound:
@@ -51,7 +51,7 @@ def index(token):
         q2 = request.forms.get('feeling')
         comment = request.forms.get('comment')
         # CHANGE FOR AWS
-        results = Table('survey2_results', connection=conn)
+        results = Table(TABLE_NAME, connection=conn)
         results.put_item(data={
                         'token': token,
                         'q1': q1,
