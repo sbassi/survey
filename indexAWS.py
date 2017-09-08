@@ -2,6 +2,8 @@ from bottle import (post, run, template, request,
 	                get, static_file, template)
 import settings
 import codecs
+import pickle
+
 import boto.dynamodb2
 from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import ItemNotFound
@@ -11,6 +13,7 @@ from boto.dynamodb2.exceptions import ItemNotFound
 BASEDIR = settings.BASEDIR
 AWS_ACCESS_KEY_ID = settings.AWS_KEY_ID
 AWS_SECRET_ACCESS_KEY = settings.AWS_SECRET
+TOKENS_FILE = settings.TOKENS_FILE
 
 
 @get('/')
@@ -29,8 +32,11 @@ def index(token):
     )
 
     def _authenticate(token):
-        c.execute("SELECT * FROM users WHERE token = ?", (token,))
-        return c.fetchone()
+	    tokens = pickle.load(open(TOKENS_FILE, "rb" ) )
+		if token in tokens:
+			return True
+		else:
+			return False
 
     def _submited(token):
         results = Table('survey2_results', connection=conn)
