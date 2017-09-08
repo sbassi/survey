@@ -1,6 +1,5 @@
-from bottle import (post, run, template, request, 
+from bottle import (post, run, template, request,
 	                get, static_file, template)
-#import sqlite3
 import settings
 import codecs
 import boto.dynamodb2
@@ -9,7 +8,6 @@ from boto.dynamodb2.exceptions import ItemNotFound
 
 #from jinja2 import Template
 
-#SURVEY_DB_FILE = settings.SURVEY_DB_FILE
 BASEDIR = settings.BASEDIR
 AWS_ACCESS_KEY_ID = settings.AWS_KEY_ID
 AWS_SECRET_ACCESS_KEY = settings.AWS_SECRET
@@ -17,18 +15,13 @@ AWS_SECRET_ACCESS_KEY = settings.AWS_SECRET
 
 @get('/')
 def home():
-    return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),        
+    return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),
     	            msg='Server for internal survey', state='default')
 
 
 @post('/surveypost/<token>')
 def index(token):
 
-    #conn = sqlite3.connect(SURVEY_DB_FILE)
-    #conn.text_factory = str
-    #c = conn.cursor()
-    # check that token exists
-    # get list of receivers
     conn = boto.dynamodb2.connect_to_region(
         'us-west-1',
         aws_access_key_id=AWS_ACCESS_KEY_ID,
@@ -36,13 +29,8 @@ def index(token):
     )
 
     def _authenticate(token):
-        users = Table('survey2_users', connection=conn)
-        try:
-            return users.get_item(token=token)
-        except ItemNotFound:
-            return False
-        #c.execute("SELECT * FROM users WHERE token = ?", (token,))
-        #return c.fetchone()
+        c.execute("SELECT * FROM users WHERE token = ?", (token,))
+        return c.fetchone()
 
     def _submited(token):
         results = Table('survey2_results', connection=conn)
@@ -50,8 +38,6 @@ def index(token):
             return results.get_item(token=token)
         except ItemNotFound:
             return False
-        #c.execute("SELECT * FROM result WHERE token = ?", (token,))
-        #return c.fetchone()
 
     if _authenticate(token) and not _submited(token):
         #print token
@@ -70,16 +56,16 @@ def index(token):
     elif _submited(token):
         conn.close()
 
-        return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),        
+        return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),
     	            msg='Survey already submitted', state='danger')
 
     else:
-        return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),        
+        return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),
                     msg='Unkown user', state='danger')
 
 
 
-    return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),        
+    return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),
     	            msg='Thank you!', state='success')
 
 
