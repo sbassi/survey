@@ -19,7 +19,7 @@ TOKENS_FILE = settings.TOKENS_FILE
 @get('/')
 def home():
     return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),
-    	            msg='Server for internal survey', state='default')
+                    msg='Server for internal survey', state='default')
 
 
 @post('/surveypost/<token>')
@@ -32,11 +32,11 @@ def index(token):
     )
 
     def _authenticate(token):
-	    tokens = pickle.load(open(TOKENS_FILE, "rb" ) )
-		if token in tokens:
-			return True
-		else:
-			return False
+       tokens = pickle.load(open(TOKENS_FILE, "rb" ) )
+       if token in tokens:
+           return True
+       else:
+           return False
 
     def _submited(token):
         results = Table('survey2_results', connection=conn)
@@ -63,7 +63,7 @@ def index(token):
         conn.close()
 
         return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),
-    	            msg='Survey already submitted', state='danger')
+                    msg='Survey already submitted', state='danger')
 
     else:
         return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),
@@ -72,7 +72,7 @@ def index(token):
 
 
     return template(codecs.open(BASEDIR + 'templates/base.html', 'r', 'utf-8').read(),
-    	            msg='Thank you!', state='success')
+                    msg='Thank you!', state='success')
 
 
 
