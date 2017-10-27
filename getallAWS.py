@@ -1,83 +1,50 @@
 import settings
-import boto.dynamodb2
-from boto.dynamodb2.table import Table
-from boto.dynamodb2.exceptions import ItemNotFound
+import boto3
+import sqlite3
 import pickle
-import pdb
-import csv, codecs, cStringIO
+import csv, codecs
+import xlsxwriter
 
 AWS_ACCESS_KEY_ID = settings.AWS_KEY_ID
 AWS_SECRET_ACCESS_KEY = settings.AWS_SECRET
+REGION = settings.REGION
+TABLE_NAME = settings.TABLE_NAME
+SURVEY_DB_FILE = settings.SURVEY_DB_FILE
 
+dynamodb = boto3.resource('dynamodb',
+                          aws_access_key_id=AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                          region_name=REGION)
+table = dynamodb.Table(TABLE_NAME)
 
-class UnicodeWriter:
-    """
-    A CSV writer which will write rows to CSV file "f",
-    which is encoded in the given encoding.
-    """
-
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-        # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
-        self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
-        self.stream = f
-        self.encoder = codecs.getincrementalencoder(encoding)()
-
-    def writerow(self, row):
-        print row
-        pdb.set_trace()
-        self.writer.writerow([s.encode("utf-8") for s in row])
-        # Fetch UTF-8 output from the queue ...
-        data = self.queue.getvalue()
-        data = data.decode("utf-8")
-        # ... and reencode it into the target encoding
-        data = self.encoder.encode(data)
-        # write to the target stream
-        self.stream.write(data)
-        # empty queue
-        self.queue.truncate(0)
-
-    def writerows(self, rows):
-        for row in rows:
-            self.writerow(row)
-
-conn = boto.dynamodb2.connect_to_region(
-        'us-west-1',
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY
-    )
-
-results = Table('survey2_results', connection=conn)
-users = Table('survey2_users', connection=conn)
-
-i = 0
+conn = sqlite3.connect(SURVEY_DB_FILE)
+c = conn.cursor()
 
 all_data = {}
+results_only = {}
+for item in table.scan()['Items']:
+    token = item['token']
+    c.execute('SELECT email from users WHERE token=?', (token,))
+    try:
+        email = c.fetchone()[0]
+        all_data[token] = {}
+        all_data[token]['email'] = email
+        all_data[token]['q1'] = item.get('q1')
+        all_data[token]['q2'] = item.get('q2')
+        all_data[token]['comment'] = item.get('comment')
+    except TypeError:
+        pass
 
-for item in results.scan():
-    i+=1
-    all_data[item['token']] = {}
-    all_data[item['token']]['q1'] = item['q1']
-    all_data[item['token']]['q2'] = item['q2']
-    all_data[item['token']]['comment'] = item['comment']
-    #pdb.set_trace()
+workbook = xlsxwriter.Workbook('tandil.xlsx')
+worksheet = workbook.add_worksheet()
+worksheet.write(0, 0,  'email')
+worksheet.write(0, 1,  'q1')
+worksheet.write(0, 2,  'q2')
+worksheet.write(0, 3,  'comment')
+for i, x in enumerate(all_data):
+    worksheet.write(i+1, 0,  all_data[x].get('email'))
+    worksheet.write(i+1, 1,  all_data[x].get('q1'))
+    worksheet.write(i+1, 2,  all_data[x].get('q2'))
+    worksheet.write(i+1, 3,  all_data[x].get('comment').encode('latin-1').decode('utf-8') if all_data[x].get('comment') else '')
 
-usersd = {}
-
-for item in users.scan():
-    usersd[item['token']] = item['email']
-    
-for item in all_data:
-    all_data[item]['email'] = usersd[item]
-
-pickle.dump(all_data, open('results','w'))
-
-#with open('resultados.csv')
-with open('resultados.csv', 'wb') as csvfile:
-    csvw = UnicodeWriter(csvfile, delimiter='\t',
-                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
-    for x in all_data:
-		csvw.writerow([x, all_data[x]['email'], all_data[x]['q1'],
-		all_data[x]['q2'], all_data[x]['comment']])
-
-
+workbook.close()

@@ -29,10 +29,10 @@ for record in data:
     receivers = [recipient]
     # Msg body from template
     t = Template(codecs.open('templates/email.html', 'r', 'utf-8').read())
-    message_body = t.render(mailto=recipient, 
+    message_body = t.render(mailto=recipient,
                     submit_url=SUBMIT_POST_SERVER,
                     token=token, imgserver = IMGSERVER)
-    
+
     message = message_body
     msg = MIMEText(message, 'html', _charset='utf-8')
     msg['Subject'] = SUBJECT
@@ -40,10 +40,10 @@ for record in data:
     msg['To'] = recipient
     try:
 
-        smtpObj = smtplib.SMTP(settings.SMTP_SERVER_NAME, 
+        smtpObj = smtplib.SMTP(settings.SMTP_SERVER_NAME,
         	                   settings.SMTP_SERVER_PORT)
-        smtpObj.sendmail(SENDER_EMAIL, receivers, msg.as_string())         
-        print "Successfully sent email"
-        time.sleep(1)
+        smtpObj.sendmail(SENDER_EMAIL, receivers, msg.as_string())
+        print("Successfully sent email to {0}".format(recipient))
+        time.sleep(.4)
     except smtplib.SMTPException:
-        print "Error: unable to send email"
+        print("Error: unable to send email {0}".format(recipient))
