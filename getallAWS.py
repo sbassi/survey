@@ -1,6 +1,7 @@
 import settings
 import boto3
 import sqlite3
+import os
 import pickle
 import csv, codecs
 import xlsxwriter
@@ -10,6 +11,8 @@ AWS_SECRET_ACCESS_KEY = settings.AWS_SECRET
 REGION = settings.REGION
 TABLE_NAME = settings.TABLE_NAME
 SURVEY_DB_FILE = settings.SURVEY_DB_FILE
+
+XLS_NAME = os.path.splitext(SURVEY_DB_FILE)[0]+'.xlsx'
 
 dynamodb = boto3.resource('dynamodb',
                           aws_access_key_id=AWS_ACCESS_KEY_ID,
@@ -35,7 +38,7 @@ for item in table.scan()['Items']:
     except TypeError:
         pass
 
-workbook = xlsxwriter.Workbook('tandil.xlsx')
+workbook = xlsxwriter.Workbook(XLS_NAME)
 worksheet = workbook.add_worksheet()
 worksheet.write(0, 0,  'email')
 worksheet.write(0, 1,  'q1')
@@ -48,3 +51,5 @@ for i, x in enumerate(all_data):
     worksheet.write(i+1, 3,  all_data[x].get('comment').encode('latin-1').decode('utf-8') if all_data[x].get('comment') else '')
 
 workbook.close()
+
+print('Wrote: {}'.format(XLS_NAME))

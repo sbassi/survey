@@ -10,7 +10,6 @@ AWS_ACCESS_KEY_ID = settings.AWS_KEY_ID
 AWS_SECRET_ACCESS_KEY = settings.AWS_SECRET
 REGION = settings.REGION
 TABLE_NAME = settings.TABLE_NAME
-SURVEY_DB_FILE = settings.SURVEY_DB_FILE
 
 dynamodb = boto3.resource('dynamodb',
                           aws_access_key_id=AWS_ACCESS_KEY_ID,

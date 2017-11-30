@@ -15,6 +15,7 @@ SURVEY_DB_FILE = settings.SURVEY_DB_FILE
 SUBJECT = settings.SUBJECT
 SUBMIT_POST_SERVER = settings.SUBMIT_POST_SERVER
 IMGSERVER = settings.IMGSERVER
+DEADLINE = settings.DEADLINE
 
 # get list of receivers
 conn = sqlite3.connect(SURVEY_DB_FILE)
@@ -28,15 +29,16 @@ for record in data:
     token = record[1]
     receivers = [recipient]
     # Msg body from template
-    t = Template(codecs.open('templates/email.html', 'r', 'utf-8').read())
-    message_body = t.render(mailto=recipient,
-                    submit_url=SUBMIT_POST_SERVER,
-                    token=token, imgserver = IMGSERVER)
+    t = Template(codecs.open('templates/email2017new.html', 'r', 'utf-8').read())
+    message_body = t.render(submit_url=SUBMIT_POST_SERVER,
+                            token=token,
+                            imgserver = IMGSERVER,
+                            deadline = DEADLINE)
 
     message = message_body
     msg = MIMEText(message, 'html', _charset='utf-8')
     msg['Subject'] = SUBJECT
-    msg['From'] = SENDER_EMAIL
+    msg['From'] = '{0} <{1}>'.format(SENDER_NAME, SENDER_EMAIL)
     msg['To'] = recipient
     try:
 
@@ -44,6 +46,6 @@ for record in data:
         	                   settings.SMTP_SERVER_PORT)
         smtpObj.sendmail(SENDER_EMAIL, receivers, msg.as_string())
         print("Successfully sent email to {0}".format(recipient))
-        time.sleep(.4)
+        time.sleep(.05)
     except smtplib.SMTPException:
         print("Error: unable to send email {0}".format(recipient))
